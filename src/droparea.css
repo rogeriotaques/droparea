@@ -1,0 +1,114 @@
+/**
+ * Droparea - Makes easy and intuitive to upload upload files through drag and drop or select methods.  
+ * Copyright (c) 2015, Rogério Taques. 
+ * 
+ * This plugin is inspired on the solution given by Ravishanker Kusuma (http://twitter.com/hayageek) 
+ * at http://hayageek.com/drag-and-drop-file-upload-jquery/ where he describes how to create an easy way to 
+ * drag and drop files and upload it to server. Many other enhancements were made.
+ * 
+ * Licensed under MIT license:
+ * http://www.opensource.org/licenses/mit-license.php
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this 
+ * software and associated documentation files (the "Software"), to deal in the Software 
+ * without restriction, including without limitation the rights to use, copy, modify, merge, 
+ * publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons 
+ * to whom the Software is furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or 
+ * substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING 
+ * BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND 
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, 
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * @version 1.0.0
+ * @author Rogério Taques (rogerio.taques@gmail.com)
+ * @see https://github.com/rogeriotaques/droparea
+ */
+ 
+@charset "UTF-8";
+
+.droparea {
+	border: thin dashed #ccc;
+	cursor: pointer;
+	color: #aaa;
+}
+
+.droparea-dragging {
+	border: thin dashed orange;
+	background-color: #FEFBED;
+	color: orange;
+}
+
+.statusbar {
+	position: absolute;
+	top: 0;
+	border: thin solid;
+	background-color: rgba(0,0,0,0.4);
+	vertical-align: middle;
+	margin-left: -5px;
+	cursor: default;
+}
+
+.statusbar>.filename,
+.statusbar>.filesize {
+	color: white;
+	font-weight: 600;
+}
+
+.statusbar>.filename {
+	margin-top: 25%;
+}
+
+.statusbar>.progressbar {
+	color: white;
+	border: thin solid whitesmoke;
+	margin: 10px 20px;
+	text-align: center;
+	box-shadow: #777 1px 1px 1px;
+}
+
+.statusbar>.progressbar>div {
+	background-color: #00C0EF;
+	font-weight: 600;
+}
+
+.statusbar>.progressbar.droparea-fail>div {
+	background-color: #F56954;
+}
+
+.statusbar .btn {
+	font-weight: 500;
+	-webkit-border-radius: 3px;
+	-moz-border-radius: 3px;
+	border-radius: 3px;
+	border: 1px solid transparent;
+	-webkit-box-shadow: inset 0px -2px 0px 0px rgba(0, 0, 0, 0.09);
+	-moz-box-shadow: inset 0px -2px 0px 0px rgba(0, 0, 0, 0.09);
+	box-shadow: inset 0px -1px 0px 0px rgba(0, 0, 0, 0.09);
+}
+
+.statusbar .btn.dismiss {
+	margin: 20px auto;
+	color: white;  
+	background-color: #3c8dbc;
+ 	border-color: #367fa9;
+}
+
+.statusbar .btn.dismiss:hover {
+	background-color: #367fa9;
+}
+
+.statusbar .btn.abort {
+	margin: 20px auto;
+	color: white;
+	background-color: #f56954;
+ 	border-color: #f4543c;
+}
+
+.statusbar .btn.abort:hover {
+	background-color: #f4543c;
+}
