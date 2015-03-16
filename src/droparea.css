@@ -33,8 +33,11 @@
 
 .droparea {
 	border: thin dashed #ccc;
+    border-radius: 5px;
 	cursor: pointer;
 	color: #aaa;
+    padding: 10px;
+    margin: 20px;
 }
 
 .droparea-dragging {
@@ -45,11 +48,10 @@
 
 .statusbar {
 	position: absolute;
-	top: 0;
-	border: thin solid;
+	border: thin solid #000;
+    border-radius: 5px;
 	background-color: rgba(0,0,0,0.4);
 	vertical-align: middle;
-	margin-left: -5px;
 	cursor: default;
 }
 
@@ -60,7 +62,7 @@
 }
 
 .statusbar>.filename {
-	margin-top: 25%;
+	margin-top: 10%;
 }
 
 .statusbar>.progressbar {

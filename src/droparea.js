@@ -222,7 +222,7 @@
 	    				statusbar = new _createStatusBar( drop_area ); 
 	    				statusbar.setFileNameSize( file.name, file.size );
 	    				
-	    				_sendFileToServer(form_data, statusbar, drop_area);
+	    				_sendFileToServer(form_data, statusbar, drop_area, file);
 	
 		    		});
 	    			
@@ -248,7 +248,9 @@
     	// place statusbar covering all the object
     	this.statusbar.css({
     		'width': obj.outerWidth(),
-    		'height': obj.outerHeight()
+    		'height': obj.outerHeight(),
+            'top': obj.offset().top,
+            'left': obj.offset().left,
     	});
     	
     	obj.append(this.statusbar);
@@ -336,7 +338,7 @@
 		
     },
     
-    _sendFileToServer = function ( form_data, status, drop_area )
+    _sendFileToServer = function ( form_data, status, drop_area, file )
     {
     	var jqXHR = $.ajax( {
     			xhr: function() 
@@ -377,7 +379,10 @@
     				// now it's time to run the callback
     				if ( typeof o.success != 'null' && $.isFunction( o.success ) )
 					{
-    					o.success( r, (typeof r.file_name != 'undefined' ? r.file_name : null) );
+                        // call the callback and pass the return from server, 
+                        // the file name (file_name) whenever it exists and the 
+                        // offline uploaded file.
+    					o.success( r, (typeof r.file_name != 'undefined' ? r.file_name : null), file );
 					}
     				
     				// remove 'drop' style from droppable area

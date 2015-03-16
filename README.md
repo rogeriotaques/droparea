@@ -57,7 +57,6 @@ notification_delay    | Integer         | 5000                                  
 accepted              | String          | .jpg&#124;.png&#124;.gif                               | The accepted extensions for upload set null or false for all files
 file_max_size         | Integer         | 2048                                                   | The file max size allowed for upload
 extra_data            | Array           | []                                                     | The extra data that would be necessary to subimit with file it's supposed to be only html form elements, such as: input, select, etc. Must be an array with the id of elements (# is not required)
-success               | Function        | null                                                   | A success callback, called after upload is complete there are two arguments passed: server_response_obj and file_name whenever the server returns it 
 i18n                  | Object          | * See below                                            | The internationalization object containing all used strings.
 i18n.unable_to_upload | String          | Unable to upload at this time.&lt;br&gt;Select a file. | 
 i18n.wrong_file_type  | String          | Unacceptable file type!&lt;br&gt;Try: %s               | %s will be replaced by 'accepted'
@@ -67,6 +66,7 @@ i18n.kb               | String          | &nbsp;KB                              
 i18n.percent          | String          | %                                                      | 
 i18n.dismiss          | String          | Dismiss                                                | 
 i18n.error            | String          | Err                                                    | 
+success               | Function        | null                                                   | A success callback, called after upload is complete there are three arguments passed: server_response_obj, file_name whenever the server returns a field "file_name" and the local uploaded file reference. 
 
 
 ## Get involved
