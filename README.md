@@ -54,7 +54,7 @@ upload          | Boolean         | true            | Whenever set to false, dro
 file_holder     | String          | #file           | It's the file holder to place files when 'upload' is set to false, and ignored when 'upload' is set to true.
 file_preview    | String          | #file_preview   | Whenever uploading an image file, and file_preview is given, droparea tries to intercept the manual selection of files on 'file_holder' and display the selected image on 'file_preview' as soon as it is selected.
 notification_delay | Integer      | 5000            | Delay to remove the 'complete' notification (milisenconds)
-accepted        | String          | '.jpg|.png|.gif' | The accepted extensions for upload set null or false for all files
+accepted        | String          | .jpg|.png|.gif  | The accepted extensions for upload set null or false for all files
 file_max_size   | Integer         | 2048            | The file max size allowed for upload
 extra_data      | Array           | []              | The extra data that would be necessary to subimit with file it's supposed to be only html form elements, such as: input, select, etc. Must be an array with the id of elements (# is not required)
 success         | Function        | NULL            | A success callback, called after upload is complete there are two arguments passed: server_response_obj and file_name whenever the server returns it 
