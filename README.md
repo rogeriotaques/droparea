@@ -1,8 +1,6 @@
 # DropArea 1.0.x
 
-Makes an easy and intuitive to upload upload files through drag and drop or select methods. 
-
-[Live Demo](http://awin.com.br/droparea).
+Makes an easy and intuitive area to upload files through drag and drop or select methods. 
 
 This plugin is inspired on the solution given by Ravishanker Kusuma (http://twitter.com/hayageek) 
 at http://hayageek.com/drag-and-drop-file-upload-jquery/ where he describes how to create an easy way to 
@@ -15,29 +13,29 @@ Import required libraries and stylesheets.
 DropArea requires jQuery.
 
 ```
-  <link rel="stylesheet" type="text/css" href="../src/droparea.css" />
-  <script type="text/javascript" src="js/jquery.1.7.1.js"></script>
-  <script type="text/javascript" src="../src/droparea.js"></script>
+    <link rel="stylesheet" type="text/css" href="../src/droparea.css" />
+    <script type="text/javascript" src="//code.jquery.com/jquery-2.1.3.min.js"></script>
+    <script type="text/javascript" src="../src/droparea.js"></script>
 ```
 
 Create the area where files would be dropped and the input file to a fallback.
 
 ```
-  <div class="droparea" >
-    <img src="http://placehold.it/200" id="file_preview" >
-    <span >Drag and drop files here!</span>
-  </div>
-  <input type="file" name="file" id="file" accept="image/*" style="display: none;" >
+    <div class="droparea" >
+        <img src="http://placehold.it/200" id="file_preview" >
+        <span >Drag and drop files here!</span>
+    </div>
+    <input type="file" name="file" id="file" accept="image/*" style="display: none;" >
 ```
 
 Then, just initialize it.
 
 ```	
-	<script type="text/javascript" >
-	  $(document).ready(function(){
-	    $('.droparea').droparea();
-	  });
-	</script>
+    <script type="text/javascript" >
+      $(document).ready(function(){
+        $('.droparea').droparea();
+      });
+    </script>
 
 ```
 
@@ -62,7 +60,7 @@ extra_data      | Array           | []              | The extra data that would 
 success         | Function        | NULL            | A success callback, called after upload is complete there are two arguments passed: server_response_obj and file_name whenever the server returns it 
 i18n            | Object          | * See below     | The internationalization object containing all used strings.
 
-* i18n Default Value
+### i18n Default Value
 ```
 
     {
@@ -80,6 +78,6 @@ i18n            | Object          | * See below     | The internationalization o
 
 ## Get involved
 
-Fork me on github, or use fell free to suggest enhancements or bugfixes.
+Fork it on github, or fell free to suggest enhancements or bugfixes.
 
 Happy coding! :)
