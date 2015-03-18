@@ -59,7 +59,8 @@ file_max_size         | Integer         | 2048                                  
 extra_data            | Array           | []                                                     | The extra data that would be necessary to subimit with file it's supposed to be only html form elements, such as: input, select, etc. Must be an array with the id of elements (# is not required)
 i18n                  | Object          | * See below                                            | The internationalization object containing all used strings.
 i18n.unable_to_upload | String          | Unable to upload at this time.&lt;br&gt;Select a file. | 
-i18n.wrong_file_type  | String          | Unacceptable file type!&lt;br&gt;Try: %s               | %s will be replaced by 'accepted'
+i18n.wrong_file_type  | String          | Unacceptable file type!&lt;br&gt;Try: %s               | %s will be replaced by option 'accepted' value
+i18n.wrong_file_size  | String          | Dropped file is too big!<br >Max file size allowed: %s | %s will be replaced by option 'file_max_size' value
 i18n.abort            | String          | Abort                                                  | 
 i18n.mb               | String          | &nbsp;MB                                               | 
 i18n.kb               | String          | &nbsp;KB                                               | 

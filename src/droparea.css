@@ -38,6 +38,12 @@
 	color: #aaa;
     padding: 10px;
     margin: 20px;
+    min-width: 250px;
+    min-height: 250px;
+}
+
+.droparea > img {
+    margin-bottom: 5px;
 }
 
 .droparea-dragging {

@@ -25,7 +25,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
  * @requires jQuery v1.11 or above
- * @version 1.0.1
+ * @version 1.0.3
  * @cat Plugins/Image
  * @author Rogério Taques (rogerio.taques@gmail.com)
  * @see https://github.com/rogeriotaques/droparea
@@ -36,6 +36,7 @@
  * 
  * 1.0 	First release.
  *      Whenever user don't drop, but click to select an image instead, droparea opens the selection box.
+ *      Validating the dropped file size, according on given initialization option.
  */
 
 (function( $ ) {
@@ -83,6 +84,7 @@
     	i18n: {
     		unable_to_upload: 'Unable to upload at this time.<br >Select a file.',
     		wrong_file_type: 'Unacceptable file type!<br >Try: %s',
+    		wrong_file_size: 'Dropped file is too big!<br >Max file size allowed: %s',
     		abort: 'Abort',
     		mb: ' MB',
     		kb: ' KB',
@@ -211,6 +213,13 @@
 			    				return;
 	    					}
 	    				}
+                    
+                        // check if dropped file weight is allowed
+                        if ( (file.size / 1024) > o.file_max_size )
+                        {
+                            _createAlertBlock( drop_area, o.i18n.wrong_file_size.replace('%s', '<b >' + o.file_max_size + ' ' + o.i18n.kb + '</b>') );
+                            return;
+                        }
 	
 	    				// define form data
 	    				form_data = new FormData();
@@ -272,7 +281,7 @@
     		
     		if ( parseInt(size_kb) > 1024)
     		{
-    			size_str = (sizeKB / 1024).toFixed(2) + o.i18n.mb;
+    			size_str = (size_kb / 1024).toFixed(2) + o.i18n.mb;
     		}
     		else
     		{
@@ -316,10 +325,12 @@
 			filename   = $('<div class="filename"></div>').html( msg ).appendTo(alertblock),
 			dismiss	   = $('<button class="btn dismiss"></button>').html( o.i18n.dismiss );
 	
-		// place statusbar covering all the object
-		alertblock.css({
+    	// place statusbar covering all the object
+    	alertblock.css({
     		'width': target.outerWidth(),
-    		'height': target.outerHeight()
+    		'height': target.outerHeight(),
+            'top': target.offset().top,
+            'left': target.offset().left,
     	});
     	
 		target.append(alertblock);

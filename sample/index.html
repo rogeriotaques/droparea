@@ -96,6 +96,11 @@
             .text-center {
                 text-align: center;                
             }
+            
+            #file_preview {
+                max-height: 500px;
+                max-width: 500px;
+            }
 		</style>
 		
 	</head>
@@ -172,19 +177,20 @@
                         
                         var oFReader = new FileReader();
         				
-        				// force the next image has same dimension of 
-        				// current image in preview.
-        				$( '#file_preview' ).css({
-        					'max-width' : $( '#file_preview' ).width(),
-        					'max-height': $( '#file_preview' ).height()
-        				});
-        				
         				oFReader.readAsDataURL( uploaded_file );
         				oFReader.onload = function (oFREvent) 
         				{
         					$( '#file_preview' ).animate({opacity: 0}, 'slow', function(){
         						// change the image source
-        						$(this).attr('src', oFREvent.target.result).animate({opacity: 1}, 'slow');
+        						$(this)
+                                    .attr('src', oFREvent.target.result).animate({opacity: 1}, 'fast')
+                                    .on('load', function()
+                                    {
+                                        $('.statusbar').css({
+                                            width: $('.droparea').outerWidth(),
+                                            height: $('.droparea').outerHeight()
+                                        });
+                                    });
         						
         						// remove the alert block whenever it exists.	
         						$('.droparea').find('.statusbar.alert-block').fadeOut('slow', function(){ $(this).remove(); });
