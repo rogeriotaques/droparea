@@ -25,7 +25,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
  * @requires jQuery v1.11 or above
- * @version 1.0.0
+ * @version 1.0.1
  * @cat Plugins/Image
  * @author Rogério Taques (rogerio.taques@gmail.com)
  * @see https://github.com/rogeriotaques/droparea
@@ -34,7 +34,8 @@
 /**
  * CHANGELOG
  * 
- * 1.0 	First release. 
+ * 1.0 	First release.
+ *      Whenever user don't drop, but click to select an image instead, droparea opens the selection box.
  */
 
 (function( $ ) {
@@ -145,6 +146,15 @@
         		
         		// setup handlers
 	    		drop_area
+    				.on('click', function (ev) 
+    		    	{
+    	    				// prevent event bubble propagation
+    		    		    ev.stopPropagation();
+    		    		    ev.preventDefault();
+    		    		    
+    		    		    // simulate that user is selecting the file, but not dropping it instead
+                            $( o.file_holder ).click();
+		    		})
     				.on('dragenter', function (ev) 
     		    	{
     	    				// prevent event bubble propagation
