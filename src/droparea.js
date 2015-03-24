@@ -25,7 +25,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
  * @requires jQuery v1.11 or above
- * @version 1.0.3
+ * @version 1.0.4
  * @cat Plugins/Image
  * @author Rogério Taques (rogerio.taques@gmail.com)
  * @see https://github.com/rogeriotaques/droparea
@@ -37,6 +37,7 @@
  * 1.0 	First release.
  *      Whenever user don't drop, but click to select an image instead, droparea opens the selection box.
  *      Validating the dropped file size, according on given initialization option.
+ *      Don't force the next image to have the previous image size.
  */
 
 (function( $ ) {
@@ -120,14 +121,7 @@
         			$( o.file_holder ).on('change', function(ev)
         			{
         				var oFReader = new FileReader();
-        				
-        				// force the next image has same dimension of 
-        				// current image in preview.
-        				$( o.file_preview ).css({
-        					'max-width' : $( o.file_preview ).width(),
-        					'max-height': $( o.file_preview ).height()
-        				});
-        				
+        				        				
         				oFReader.readAsDataURL( $( this )[0].files[0] );
         				oFReader.onload = function (oFREvent) 
         				{
