@@ -108,11 +108,11 @@
 	<body >
 
 		<div class="header" >
-			<h1 >Droparea</h1>
 
+			<h1 >Droparea</h1>
 			<p >A jQuery plugin which makes an easy and intuitive area for upload files through drag and drop or select methods, by Rogério Taques</p>
 
-        </div>
+    </div>
 
 		<div class="my-div">
 
@@ -134,15 +134,25 @@
       <h2>Live Demo</h2>
 
       <p >Drag image files and drop it over the box below.</p>
+      <p >Since version 1.0.5, you can have many drop areas in your pages!</p>
 
       <div class="droparea_container"  >
-          <div class="droparea text-center" >
-              <img src="http://placehold.it/200" id="file_preview" > <br >
-              <span >Drag and drop files here!</span>
-          </div>
+				<h3>Droparea 1</h3>
+        <div class="droparea text-center" id="drop1">
+            <img src="http://placehold.it/200" id="file_preview_1" > <br >
+            <span >Drag and drop files here!</span>
+        </div>
+      </div>
+      <div class="droparea_container"  >
+				<h3>Droparea 2</h3>
+        <div class="droparea text-center" id="drop2" >
+            <img src="http://placehold.it/200" id="file_preview_2" > <br >
+            <span >Drag and drop files here!</span>
+        </div>
       </div>
 
-      <input type="file" name="file" id="file" accept="image/*" style="display: none;" >
+      <input type="file" name="file" id="file_1" accept="image/*" style="display: none;" >
+      <input type="file" name="file" id="file_2" accept="image/*" style="display: none;" >
 
       <br >
 
@@ -175,23 +185,16 @@
 
 			<div class="row" >
 				<div class="col-xs-12" >
-					<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-					<!-- Awin website & blog - Responsivo -->
-					<ins class="adsbygoogle"
-						style="display:block"
-						data-ad-client="ca-pub-3389659365097419"
-						data-ad-slot="4092379267"
-						data-ad-format="auto"></ins>
-					<script>
-					(adsbygoogle = window.adsbygoogle || []).push({});
-					</script>
+					<a href="http://www.superdominios.org/home/aff.php?aff=3162" target="_blank">
+						<img src="http://www.superdominios.org/banners/hospedagem728x90.png" class="img-responsive" alt="Hospedagem de site ilimitada" />
+					</a>
 				</div>
 			</div>
 
 		</div>
 
 		<div class="footer" >
-			<p >&copy;2014, Rogério Taques.</p>
+			<p >&copy;2014-2016, Rogério Taques.</p>
 		</div>
 
         <script>
@@ -206,44 +209,84 @@
 
         </script>
 
-		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+		<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 		<script type="text/javascript" src="../src/droparea.js"></script>
 		<script type="text/javascript" >
 
-			$(document).ready(function() {
+		$(document).ready(function() {
 
-				// Exemple 1
-				$('.droparea').droparea({
-                    url: 'server.php',
-                    success: function( server_return, name, uploaded_file )
-                    {
-                        $('.droparea').after( $('<p />').html( 'File sent: <b>' + name + '</b>' ) );
+			var options1 = {
+				url: 'server.php',
+				file_holder: '#file_1',
+				file_preview: '#file_preview_1',
+				success: function( server_return, name, uploaded_file )
+				{
+					var oFReader = new FileReader();
+					var _drop = $('#drop1');
 
-                        var oFReader = new FileReader();
+					_drop.after( $('<p />').html( 'File sent: <b>' + name + '</b>' ) );
 
-        				oFReader.readAsDataURL( uploaded_file );
-        				oFReader.onload = function (oFREvent)
-        				{
-        					$( '#file_preview' ).animate({opacity: 0}, 'slow', function(){
-        						// change the image source
-        						$(this)
-                                    .attr('src', oFREvent.target.result).animate({opacity: 1}, 'fast')
-                                    .on('load', function()
-                                    {
-                                        $('.statusbar').css({
-                                            width: $('.droparea').outerWidth(),
-                                            height: $('.droparea').outerHeight()
-                                        });
-                                    });
+					oFReader.readAsDataURL( uploaded_file );
+					oFReader.onload = function (oFREvent)
+					{
+						$( '#file_preview_1' ).animate({opacity: 0}, 'slow', function(){
+							// change the image source
+							$(this)
+								.attr('src', oFREvent.target.result).animate({opacity: 1}, 'fast')
+								.on('load', function()
+								{
+									_drop.find('.statusbar').css({
+										width: _drop.outerWidth(),
+										height: _drop.outerHeight()
+									});
+								});
 
-        						// remove the alert block whenever it exists.
-        						$('.droparea').find('.statusbar.alert-block').fadeOut('slow', function(){ $(this).remove(); });
-        					});
-            			};
-                    }
-                });
+							// remove the alert block whenever it exists.
+							_drop.find('.statusbar.alert-block').fadeOut('slow', function(){ $(this).remove(); });
+						});
+					};
+				}
+			};
 
-			});
+			var options2 = {
+				url: 'server.php',
+				file_holder: '#file_2',
+				file_preview: '#file_preview_2',
+				success: function( server_return, name, uploaded_file )
+				{
+					var oFReader = new FileReader();
+					var _drop = $('#drop2');
+
+					_drop.after( $('<p />').html( 'File sent: <b>' + name + '</b>' ) );
+
+					oFReader.readAsDataURL( uploaded_file );
+					oFReader.onload = function (oFREvent)
+					{
+						$( '#file_preview_2' ).animate({opacity: 0}, 'slow', function(){
+							// change the image source
+							$(this)
+								.attr('src', oFREvent.target.result).animate({opacity: 1}, 'fast')
+								.on('load', function()
+								{
+									_drop.find('.statusbar').css({
+										width: _drop.outerWidth(),
+										height: _drop.outerHeight()
+									});
+								});
+
+							// remove the alert block whenever it exists.
+							_drop.find('.statusbar.alert-block').fadeOut('slow', function(){ $(this).remove(); });
+						});
+					};
+				}
+			};
+
+
+			// Exemples
+			$('#drop1').droparea(options1);
+			$('#drop2').droparea(options2);
+
+		});
 
 		</script>
 
