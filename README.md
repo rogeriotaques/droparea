@@ -1,5 +1,7 @@
-# DropArea
-[![Latest Version](https://img.shields.io/github/release/rogeriotaques/droparea.svg)](https://github.com/rogeriotaques/seed-css/releases)
+DropArea
+========
+
+[![Latest Version](https://img.shields.io/github/release/rogeriotaques/droparea.svg)](https://github.com/rogeriotaques/droparea/releases)
 
 Makes an easy and intuitive area to upload files through drag and drop or select methods.
 
@@ -57,7 +59,7 @@ file_preview          | String          | #file_preview                         
 notification_delay    | Integer         | 5000                                                   | Delay to remove the 'complete' notification (milisenconds)
 accepted              | String          | .jpg&#124;.png&#124;.gif                               | The accepted extensions for upload set null or false for all files
 file_max_size         | Integer         | 2048                                                   | The file max size allowed for upload
-extra_data            | Array           | []                                                     | The extra data that would be necessary to subimit with file it's supposed to be only html form elements, such as: input, select, etc. Must be an array with the id of elements (# is not required)
+extra_data            | Array           | []                                                     | The extra data that would be necessary to submit with file it's supposed to be only html form elements, such as: input, select, etc. Must be an array with the id of elements (# is not required)
 i18n                  | Object          | * See below                                            | The internationalization object containing all used strings.
 i18n.unable_to_upload | String          | Unable to upload at this time.&lt;br&gt;Select a file. |
 i18n.wrong_file_type  | String          | Unacceptable file type!&lt;br&gt;Try: %s               | %s will be replaced by option 'accepted' value
