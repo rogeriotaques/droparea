@@ -3,7 +3,7 @@
  * Copyright (c) 2015, Rogério Taques.
  *
  * @requires jQuery v1.11 or above
- * @version 1.0.5
+ * @version 1.0.6
  * @cat Plugins/Image
  * @author Rogério Taques (rogerio.taques@gmail.com)
  * @see https://github.com/rogeriotaques/droparea
@@ -42,6 +42,7 @@
  *      Validating the dropped file size, according on given initialization option.
  *      Don't force the next image to have the previous image size.
  *      Fixes a bug that prevent multiple dropareas in the same page.
+ * 		Fixes a bug that breaks the plugin execution when setting a dismiss button label
  */
 
 (function( $ ) {
@@ -193,7 +194,7 @@
               // open the file selection for 'file_holder' instead.
               if ( !o.upload )
               {
-                _createAlertBlock( drop_area, o.i18n.unable_to_upload, true, false );
+                _createAlertBlock( o, drop_area, o.i18n.unable_to_upload, true, false );
                 $(o.file_holder).click();
 
                 return;
@@ -204,7 +205,7 @@
               {
                 if ( o.accepted.indexOf( file.name.substr( file.name.lastIndexOf('.') ) ) === -1 )
                 {
-                  _createAlertBlock( drop_area, o.i18n.wrong_file_type.replace('%s', '<b >' + o.accepted.split('|').join('</b> or <b >') + '</b>') );
+                  _createAlertBlock( o, drop_area, o.i18n.wrong_file_type.replace('%s', '<b >' + o.accepted.split('|').join('</b> or <b >') + '</b>') );
                   return;
                 }
               }
@@ -212,7 +213,7 @@
               // check if dropped file weight is allowed
               if ( (file.size / 1024) > o.file_max_size )
               {
-                _createAlertBlock( drop_area, o.i18n.wrong_file_size.replace('%s', '<b >' + o.file_max_size + ' ' + o.i18n.kb + '</b>') );
+                _createAlertBlock( o, drop_area, o.i18n.wrong_file_size.replace('%s', '<b >' + o.file_max_size + ' ' + o.i18n.kb + '</b>') );
                 return;
               }
 
@@ -310,7 +311,7 @@
 
     },
 
-    _createAlertBlock = function( target, msg, dismissable, autohide )
+    _createAlertBlock = function( o, target, msg, dismissable, autohide )
     {
     	// sanitize arguments
     	dismissable = (typeof dismissable != 'undefined' ? dismissable : true);
