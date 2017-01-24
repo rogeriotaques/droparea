@@ -203,7 +203,7 @@
               // check if dropped file is allowed
               if ( o.accepted !== null && typeof o.accepted != 'boolean' )
               {
-                if ( o.accepted.indexOf( file.name.substr( file.name.lastIndexOf('.') ) ) === -1 )
+                if ( o.accepted.toLowerCase().indexOf( file.name.substr( file.name.lastIndexOf('.') ).toLowerCase() ) === -1 )
                 {
                   _createAlertBlock( o, drop_area, o.i18n.wrong_file_type.replace('%s', '<b >' + o.accepted.split('|').join('</b> or <b >') + '</b>') );
                   return;
