@@ -182,64 +182,75 @@
             })
 		    		.on('drop', function (ev)
             {
+		    			
+    		    var filesUpload = new Array();
+    		    var uploadResponses = new Array();
+
               ev.preventDefault();
 
               // apply a new style on droppable area
               drop_area.toggleClass( 'droparea-dropped droparea-dragging' );
+              
+              $(ev.originalEvent.dataTransfer.files).each(function(k, file){
 
-              // get the original file
-              file = ev.originalEvent.dataTransfer.files[0];
+	              // do not upload when options.upload is set to false
+	              // open the file selection for 'file_holder' instead.
+	              if ( !o.upload )
+	              {
+	                _createAlertBlock( o, drop_area, o.i18n.unable_to_upload, true, false );
+	                $(o.file_holder).click();
+	
+	                return;
+	              }
+	
+	              // check if dropped file is allowed
+	              if ( o.accepted !== null && typeof o.accepted != 'boolean' )
+	              {
+	                if ( o.accepted.toLowerCase().indexOf( file.name.substr( file.name.lastIndexOf('.') ).toLowerCase() ) === -1 )
+	                {
+	                  _createAlertBlock( o, drop_area, o.i18n.wrong_file_type.replace('%s', '<b >' + o.accepted.split('|').join('</b> or <b >') + '</b>') );
+	                  return;
+	                }
+	              }
+	
+	              // check if dropped file weight is allowed
+	              if ( (file.size / 1024) > o.file_max_size )
+	              {
+	                _createAlertBlock( o, drop_area, o.i18n.wrong_file_size.replace('%s', '<b >' + o.file_max_size + ' ' + o.i18n.kb + '</b>') );
+	                return;
+	              }
+	
+	              // define form data
+	              form_data = new FormData();
+	              form_data.append(o.file_holder.replace('#', ''), file);
+	
+	              // append on form_data all extra data
+	              if ( o.extra_data !== null )
+	              {
+	                for( var i in o.extra_data)
+	                {
+	                  if ( $( '#' + o.extra_data[i].replace('#', '') ).length )
+	                  {
+	                    form_data.append(o.extra_data[i].replace('#', ''), $( '#' + o.extra_data[i].replace('#', '') ).val());
+	                  }
+	                }
+	              }
+	
+	              // create the statusbar in order to set submition progress
+	              statusbar = new _createStatusBar( drop_area, o );
+	              statusbar.setFileNameSize( file.name, file.size );
+	
+	              var r = _sendFileToServer(form_data, statusbar, drop_area, file, o);
+	              
+	              uploadResponses.push(r);
+	              filesUpload.push(file);
+	    			 
+  		    	});
+  		    
+              	o.success(uploadResponses, filesUpload);
 
-              // do not upload when options.upload is set to false
-              // open the file selection for 'file_holder' instead.
-              if ( !o.upload )
-              {
-                _createAlertBlock( o, drop_area, o.i18n.unable_to_upload, true, false );
-                $(o.file_holder).click();
 
-                return;
-              }
-
-              // check if dropped file is allowed
-              if ( o.accepted !== null && typeof o.accepted != 'boolean' )
-              {
-                if ( o.accepted.toLowerCase().indexOf( file.name.substr( file.name.lastIndexOf('.') ).toLowerCase() ) === -1 )
-                {
-                  _createAlertBlock( o, drop_area, o.i18n.wrong_file_type.replace('%s', '<b >' + o.accepted.split('|').join('</b> or <b >') + '</b>') );
-                  return;
-                }
-              }
-
-              // check if dropped file weight is allowed
-              if ( (file.size / 1024) > o.file_max_size )
-              {
-                _createAlertBlock( o, drop_area, o.i18n.wrong_file_size.replace('%s', '<b >' + o.file_max_size + ' ' + o.i18n.kb + '</b>') );
-                return;
-              }
-
-              // define form data
-              form_data = new FormData();
-              form_data.append(o.file_holder.replace('#', ''), file);
-
-              // append on form_data all extra data
-              if ( o.extra_data !== null )
-              {
-                for( var i in o.extra_data)
-                {
-                  if ( $( '#' + o.extra_data[i].replace('#', '') ).length )
-                  {
-                    form_data.append(o.extra_data[i].replace('#', ''), $( '#' + o.extra_data[i].replace('#', '') ).val());
-                  }
-                }
-              }
-
-              // create the statusbar in order to set submition progress
-              statusbar = new _createStatusBar( drop_area, o );
-              statusbar.setFileNameSize( file.name, file.size );
-
-              _sendFileToServer(form_data, statusbar, drop_area, file, o);
-
-		    		});
+              });
 
     		} ); // this.each
     	}
@@ -259,14 +270,6 @@
     	this.progressBar = $('<div class="progressbar"><div></div></div>').appendTo(this.statusbar);
     	this.progressBarWidth = 0;
     	this.abort 		 = $('<a class="btn abort">' + o.i18n.abort + '</div>').appendTo(this.statusbar);
-
-    	// place statusbar covering all the object
-    	this.statusbar.css({
-    		'width': obj.outerWidth(),
-    		'height': obj.outerHeight(),
-            'top': obj.offset().top,
-            'left': obj.offset().left,
-    	});
 
     	obj.append(this.statusbar);
 
@@ -320,14 +323,6 @@
 		var alertblock = $('<div class="statusbar alert-block"></div>'),
 			filename   = $('<div class="filename"></div>').html( msg ).appendTo(alertblock),
 			dismiss	   = $('<button class="btn dismiss"></button>').html( o.i18n.dismiss );
-
-    	// place statusbar covering all the object
-    	alertblock.css({
-    		'width': target.outerWidth(),
-    		'height': target.outerHeight(),
-            'top': target.offset().top,
-            'left': target.offset().left,
-    	});
 
 		target.append(alertblock);
 
@@ -399,7 +394,8 @@
               // call the callback and pass the return from server,
               // the file name (file_name) whenever it exists and the
               // offline uploaded file.
-              o.success( r, (typeof r.file_name != 'undefined' ? r.file_name : null), file );
+              //o.success( r, (typeof r.file_name != 'undefined' ? r.file_name : null), file );
+              return r;
             }
 
             // remove 'drop' style from droppable area
