@@ -53,22 +53,19 @@
 }
 
 .statusbar {
-	position: absolute;
 	border: thin solid #000;
     border-radius: 5px;
 	background-color: rgba(0,0,0,0.4);
 	vertical-align: middle;
 	cursor: default;
+	padding: 5px;
+	margin-top: 10px;
 }
 
 .statusbar>.filename,
 .statusbar>.filesize {
 	color: white;
 	font-weight: 600;
-}
-
-.statusbar>.filename {
-	margin-top: 10%;
 }
 
 .statusbar>.progressbar {
