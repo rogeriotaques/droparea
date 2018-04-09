@@ -1,19 +1,17 @@
 /**!
- * Droparea - Makes an easy and intuitive to upload upload files through drag and drop or select methods.
- * Copyright (c) 2015, Rogério Taques.
+ * Droparea.js
+ * Makes it easy and intuitive to upload files through drag and drop
+ * or thru the normal select from your computer method.
  *
- * @requires jQuery v1.11 or above
- * @version 1.0.6
+ * @requires jQuery v2.1.3 or above
+ * @version 2.0.0
  * @cat Plugins/Image
  * @author Rogério Taques (rogerio.taques@gmail.com)
- * @see https://github.com/rogeriotaques/droparea
+ * @copyright 2015-2018, Rogério Taques
+ * @see https://rogeriotaques.github.io/droparea
  */
 
 /**
- * This plugin is inspired on the solution given by Ravishanker Kusuma (http://twitter.com/hayageek)
- * at http://hayageek.com/drag-and-drop-file-upload-jquery/ where he describes how to create an easy way to
- * drag and drop files and upload it to server. Many other enhancements were made.
- *
  * Licensed under MIT license:
  * http://www.opensource.org/licenses/mit-license.php
  *
@@ -31,418 +29,583 @@
  * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *
  */
 
-/**
- * CHANGELOG
- *
- * 1.0 	First release.
- *      Whenever user don't drop, but click to select an image instead, droparea opens the selection box.
- *      Validating the dropped file size, according on given initialization option.
- *      Don't force the next image to have the previous image size.
- *      Fixes a bug that prevent multiple dropareas in the same page.
- * 		Fixes a bug that breaks the plugin execution when setting a dismiss button label
- */
+(function($) {
+  'use strict';
 
-(function( $ ) {
-    "use strict";
+  var drop_area;
+  // var file;
+  // var form_data;
+  // var statusbar;
+  var o;
 
-    var
+  // Default options
+  var defaults = {
+    // Server url
+    url: 'path/to/server/script',
 
-    // default options
-    defaults = {
-    	// server url
-    	url: 'path/to/server/script',
+    // The method that will be used to call the server.
+    // Possible values: POST, PATCH, PUT
+    method: 'POST',
 
-    	// whenever set to false, droparea won't upload the file to server, but set it into a local 'file' field instead.
-    	// if false, a 'file_holder' is required
-    	upload: true,
+    // If set to false, droparea won't upload the file to server, but set it
+    // into a local 'file' field instead. If that's the case, a 'fileHolder'
+    // is required.
+    upload: true,
 
-    	// the file holder to place files when 'upload' is set to false
-    	// ignored when 'upload' is set to true.
-    	file_holder: '#file',
+    // The file holder to place files when 'upload' is set to false
+    // ignored when 'upload' is set to true.
+    fileHolder: '#file',
 
-    	// whenever uploading an image file and file_preview is given
-    	// droparea tries to intercept the manual selection of files on 'file_holder'
-    	// and display the selected image on 'file_preview' as soon as it is selected.
-    	file_preview: '#file_preview',
+    // When uploading an image file and filePreview is given droparea tries
+    // to intercept the manual selection of files on 'fileHolder' and display
+    // the selected image on 'filePreview' as soon as it is selected.
+    filePreview: '#file-preview',
 
-    	// delay to remove the 'complete' notification (milisenconds)
-    	notification_delay: 5000,
+    // Delay to remove the 'complete' notification (milisenconds)
+    notificationDelay: 5000,
 
-    	// accepted extensions for upload
-    	// set null or false for all files
-    	accepted: '.jpg|.png|.gif',
+    // Accepted extensions for upload.
+    // Set null or false for all files
+    accepted: '.jpg|.png|.gif',
 
-    	// the file max size allowed for upload
-    	file_max_size: 2048,
+    // The file max-size allowed for uploads
+    fileMaxSize: 2048,
 
-    	// extra data that would be necessary to subimit with file
-    	// it's supposed to be only html form elements, such as: input, select, etc.
-    	// must be an array with the id of elements (# is not required)
-    	extra_data: [],
+    // Extra information that would be necessary to subimit with the file.
+    // It's supposed to be only html form elements, such as: input, select, etc.
+    // It must be an array with the id of elements (# is not required).
+    extra: [],
 
-    	// a success callback, called after upload is complete
-    	// there are two arguments passed: server_response_obj and file_name whenever the server returns it
-    	success: null,
+    // A success callback, called after the upload completes.
+    // Three arguments are passed to the callback:
+    //    response   - The server response. Usually JSON.
+    //    file_name  - Whatever string the server returns as the file-name.
+    //    file_refer - Local uploaded object (reference) file.
+    onSuccess: null,
 
-    	i18n: {
-    		unable_to_upload: 'Unable to upload at this time.<br >Select a file.',
-    		wrong_file_type: 'Unacceptable file type!<br >Try: %s',
-    		wrong_file_size: 'Dropped file is too big!<br >Max file size allowed: %s',
-    		abort: 'Abort',
-    		mb: ' MB',
-    		kb: ' KB',
-    		percent: '% ',
-    		dismiss: 'Dismiss',
-    		error: 'Err: '
-    	}
-    },
+    // A failure callback, called after the upload fails.
+    // One argument is passed to the callback:
+    //    error      - The server response. Usually Object.
+    onFail: null,
 
-    // plugin methods
-    methods = {
+    // Internationalization object
+    i18n: {
+      unableToUpload: 'Unable to upload at this time.<br >Select a file.',
+      wrongFileType: 'Unacceptable file type!<br >Try: %s',
+      wrongFileSize: 'Dropped file is too big!<br >Max file size allowed: %s',
+      abort: 'Abort',
+      mb: ' MB',
+      kb: ' KB',
+      percent: '% ',
+      dismiss: 'Dismiss',
+      error: 'Err: '
+    }
+  };
 
-    	// initialize
-    	init: function( options )
-    	{
-    		return this.each( function() {
+  // The counter for submitions.
+  var _sent = 0;
 
-        		var drop_area = $( this	),
-          			file = null,
-          			form_data = null,
-          			statusbar = null,
-                o = {};
+  /**
+   * Updates the image source with the selected/ dropped one.
+   * @param {FileDataObject} [droppedFile]
+   * @return void
+   */
+  var _updateImageSource = function(file) {
+    var oFReader = new FileReader();
 
-            o = $.extend({}, defaults, options);
+    // When file is selected
+    if (file) {
+      oFReader.readAsDataURL(file);
 
-        		// intercepts the 'file_holder' element to assure that
-        		// whenever user selects an image file from there, it will be displayed as preview.
-        		if ( $(o.file_holder).length && $(o.file_preview).length )
-            {
-              $( o.file_holder ).on('change', function(ev)
-              {
-                var oFReader = new FileReader();
-
-                oFReader.readAsDataURL( $( this )[0].files[0] );
-                oFReader.onload = function (oFREvent)
-                {
-                  $( o.file_preview ).animate({opacity: 0}, 'slow', function(){
-                    // change the image source
-                    $(this).attr('src', oFREvent.target.result).animate({opacity: 1}, 'slow');
-
-                    // remove the alert block whenever it exists.
-                    drop_area.find('.statusbar.alert-block').fadeOut('slow', function(){ $(this).remove(); });
-                  });
-                };
+      oFReader.onload = function(oFREvent) {
+        $(o.filePreview).animate({ opacity: 0 }, 'slow', function() {
+          // change source
+          $(o.filePreview).attr('src', oFREvent.target.result);
+          $(o.filePreview).animate({ opacity: 1 }, 'slow', function() {
+            // remove the alert block, if any.
+            drop_area
+              .find('.statusbar.alert-block')
+              .fadeOut('slow', function() {
+                $(this).remove();
               });
-            }
+          });
+        });
+      };
+    }
+  }; // _updateImageSource
 
-        		// need to explicit the parent position definition
-        		// to prevent problems with statusbar style.
-        		drop_area.parent().css('position', drop_area.parent().css('position') );
+  /**
+   * Called when user clicks on dismiss button from alert block
+   * @param {object} ev The window event
+   * @return void
+   */
+  var _onClickDismiss = function(ev) {
+    ev.stopPropagation();
+    ev.preventDefault();
 
-        		// setup handlers
-	    		drop_area
-    				.on('click', function (ev)
-            {
-              // prevent event bubble propagation
-              ev.stopPropagation();
-              ev.preventDefault();
+    $(ev.currentTarget)
+      .parent()
+      .fadeOut('fast', function() {
+        $(this).remove();
+      });
+  }; // _onClickDismiss
 
-              // simulate that user is selecting the file, but not dropping it instead
-              $( o.file_holder ).click();
-            })
-    				.on('dragenter', function (ev)
-            {
-              // prevent event bubble propagation
-              ev.stopPropagation();
-              ev.preventDefault();
+  /**
+   * Creates an status bar of the droparea upload progress.
+   * @return StatusBar
+   */
+  var _createStatusBar = function() {
+    _sent += 1; // increase the submission counter
 
-              // apply a new style on droppable area
-              drop_area.addClass( 'droparea-dragging' );
-            })
-	    			.on('dragleave', function (ev)
-            {
-              // prevent event bubble propagation
-              ev.stopPropagation();
-              ev.preventDefault();
+    var abortElem = $('<a class="btn abort">' + o.i18n.abort + '</div>');
 
-              // restore original style
-              drop_area.removeClass( 'droparea-dragging' );
-            })
-	    			.on('dragover', function (ev)
-            {
-              // prevent event bubble propagation
-              ev.stopPropagation();
-              ev.preventDefault();
+    var fileNameElem = $('<div class="filename" ></div>');
 
-              // apply a new style on droppable area
-              drop_area.addClass( 'droparea-dragging' );
-            })
-		    		.on('drop', function (ev)
-            {
-              ev.preventDefault();
+    var fileSizeElem = $('<div class="filesize" ></div>');
 
-              // apply a new style on droppable area
-              drop_area.toggleClass( 'droparea-dropped droparea-dragging' );
+    var progressBarElem = $('<div class="progressbar"><div ></div></div>', {
+      style: { top: 0, left: 0 }
+    });
 
-              // get the original file
-              file = ev.originalEvent.dataTransfer.files[0];
+    var statusBarElem = $('<div class="statusbar"></div>', {
+      id: 'droparea-statusbar-' + _sent
+    });
 
-              // do not upload when options.upload is set to false
-              // open the file selection for 'file_holder' instead.
-              if ( !o.upload )
-              {
-                _createAlertBlock( o, drop_area, o.i18n.unable_to_upload, true, false );
-                $(o.file_holder).click();
+    var setFileNameSize = function(fileName, fileSize) {
+      var sizeStr = '';
 
-                return;
-              }
+      var sizeKb = fileSize / 1024;
 
-              // check if dropped file is allowed
-              if ( o.accepted !== null && typeof o.accepted != 'boolean' )
-              {
-                if ( o.accepted.indexOf( file.name.substr( file.name.lastIndexOf('.') ) ) === -1 )
-                {
-                  _createAlertBlock( o, drop_area, o.i18n.wrong_file_type.replace('%s', '<b >' + o.accepted.split('|').join('</b> or <b >') + '</b>') );
-                  return;
-                }
-              }
+      var fixSize = function(val) {
+        val = parseFloat(val.toFixed(2));
+        return val % 1 === 0 ? val.toFixed(0) : val.toFixed(2);
+      };
 
-              // check if dropped file weight is allowed
-              if ( (file.size / 1024) > o.file_max_size )
-              {
-                _createAlertBlock( o, drop_area, o.i18n.wrong_file_size.replace('%s', '<b >' + o.file_max_size + ' ' + o.i18n.kb + '</b>') );
-                return;
-              }
+      if (parseInt(sizeKb) > 1024) {
+        sizeStr = fixSize(sizeKb / 1024) + o.i18n.mb;
+      } else {
+        sizeStr = fixSize(sizeKb) + o.i18n.kb;
+      }
 
-              // define form data
-              form_data = new FormData();
-              form_data.append(o.file_holder.replace('#', ''), file);
-
-              // append on form_data all extra data
-              if ( o.extra_data !== null )
-              {
-                for( var i in o.extra_data)
-                {
-                  if ( $( '#' + o.extra_data[i].replace('#', '') ).length )
-                  {
-                    form_data.append(o.extra_data[i].replace('#', ''), $( '#' + o.extra_data[i].replace('#', '') ).val());
-                  }
-                }
-              }
-
-              // create the statusbar in order to set submition progress
-              statusbar = new _createStatusBar( drop_area, o );
-              statusbar.setFileNameSize( file.name, file.size );
-
-              _sendFileToServer(form_data, statusbar, drop_area, file, o);
-
-		    		});
-
-    		} ); // this.each
-    	}
-
-    },
-
-    // counter for submitions.
-    _sent = 0,
-
-    _createStatusBar = function( obj, o )
-    {
-    	_sent++;	// count the new submition
-
-    	this.statusbar 	 = $('<div class="statusbar statusbar-' + _sent + '"></div>');
-    	this.filename  	 = $('<div class="filename"></div>').appendTo(this.statusbar);
-    	this.size 	   	 = $('<div class="filesize"></div>').appendTo(this.statusbar);
-    	this.progressBar = $('<div class="progressbar"><div></div></div>').appendTo(this.statusbar);
-    	this.progressBarWidth = 0;
-    	this.abort 		 = $('<a class="btn abort">' + o.i18n.abort + '</div>').appendTo(this.statusbar);
-
-    	// place statusbar covering all the object
-    	this.statusbar.css({
-    		'width': obj.outerWidth(),
-    		'height': obj.outerHeight(),
-            'top': obj.offset().top,
-            'left': obj.offset().left,
-    	});
-
-    	obj.append(this.statusbar);
-
-    	this.setFileNameSize = function(name, size)
-    	{
-    		var size_str = '',
-    			size_kb  = (size / 1024);
-
-    		if ( parseInt(size_kb) > 1024)
-    		{
-    			size_str = (size_kb / 1024).toFixed(2) + o.i18n.mb;
-    		}
-    		else
-    		{
-    			size_str = size_kb.toFixed(2) + o.i18n.kb;
-    		}
-
-    		this.filename.html( name );
-    		this.size.html( size_str );
-    	};
-
-    	this.setProgress = function( progress )
-    	{
-    		this.progressBarWidth = progress * this.progressBar.width() / 100;
-    		this.progressBar.find('div').animate({ width: this.progressBarWidth }, 10).html(progress + o.i18n.percent);
-
-    		if ( parseInt(progress) >= 100)
-    		{
-    			this.abort.hide();
-    		}
-    	};
-
-    	this.setAbort = function( jqxhr )
-    	{
-    		this.abort.on('click', function(ev)
-    		{
-    			ev.preventDefault();
-    			jqxhr.abort();
-    			this.statusbar.hide();
-    		});
-    	};
-
-    },
-
-    _createAlertBlock = function( o, target, msg, dismissable, autohide )
-    {
-    	// sanitize arguments
-    	dismissable = (typeof dismissable != 'undefined' ? dismissable : true);
-    	autohide = (typeof autohide != 'undefined' ? autohide : true);
-
-		var alertblock = $('<div class="statusbar alert-block"></div>'),
-			filename   = $('<div class="filename"></div>').html( msg ).appendTo(alertblock),
-			dismiss	   = $('<button class="btn dismiss"></button>').html( o.i18n.dismiss );
-
-    	// place statusbar covering all the object
-    	alertblock.css({
-    		'width': target.outerWidth(),
-    		'height': target.outerHeight(),
-            'top': target.offset().top,
-            'left': target.offset().left,
-    	});
-
-		target.append(alertblock);
-
-		// implement a dismiss button
-		// and inject it when alert block is dismissable
-		if ( dismissable )
-		{
-			dismiss.on('click', function(ev)
-			{
-				ev.stopPropagation();
-				ev.preventDefault();
-
-				alertblock.fadeOut('fast', function() { $(this).remove(); });
-			}).appendTo(alertblock);
-		}
-
-		// whenever alert is autohide
-		// make it hidden after notification_delay setting
-		if ( autohide )
-		{
-			setTimeout(function(){
-				alertblock.fadeOut('fast', function() { $(this).remove(); });
-			}, o.notification_delay );
-		}
-
-    },
-
-    _sendFileToServer = function ( form_data, status, drop_area, file, o )
-    {
-    	var jqXHR = $.ajax( {
-    			xhr: function()
-    			{
-    				var xhrobj = $.ajaxSettings.xhr();
-
-    				if (xhrobj.upload)
-    				{
-    					xhrobj.upload.addEventListener('progress', function(ev)
-    					{
-    						var percent  = 0,
-    							position = (ev.loaded || ev.position),
-    							total 	 = ev.total;
-
-    						if (ev.lengthComputable)
-    						{
-    							percent = Math.ceil(position / total * 100);
-    						}
-
-    						// update progress
-    						status.setProgress( percent );
-    					}, false);
-    				}
-
-    				return xhrobj;
-    			},
-    			url: o.url,
-    			type: "POST",
-    			contentType: false,
-    			processData: false,
-    			cache: false,
-    			data: form_data,
-    			success: function( r )
-    			{
-            r = $.parseJSON(r);
-            status.setProgress( 100 );
-
-            // now it's time to run the callback
-            if ( o.success !== null && $.isFunction( o.success ) )
-            {
-              // call the callback and pass the return from server,
-              // the file name (file_name) whenever it exists and the
-              // offline uploaded file.
-              o.success( r, (typeof r.file_name != 'undefined' ? r.file_name : null), file );
-            }
-
-            // remove 'drop' style from droppable area
-            drop_area.removeClass( 'droparea-dropped' );
-    			},
-
-    			error: function( jqXHR, textStatus, errorThrown)
-    			{
-    				status.progressBar.addClass('droparea-fail');
-    				status.progressBar.find('div:first').html( o.i18n.error + errorThrown );
-    			},
-
-    			complete: function( jqXHR, textStatus )
-    			{
-    				// after complete, remove the status
-    				setTimeout( function()
-		    		{
-		    			status.statusbar.fadeOut('fast', function()
-		    			{
-		    				$(this).remove();
-		    			});
-		    		}, o.notification_delay );
-    			}
-    	});
-
-    	status.setAbort( jqXHR );
-
-    }; // _sendFileToServer
-
-    $.fn.droparea = function( method )
-    {
-    	if( methods[method] )
-    	{
-    		return methods[method].apply( this, Array.prototype.slice.call(arguments, 1) );
-    	}
-    	else if( typeof method === 'object' || !method )
-    	{
-    		return methods.init.apply( this, arguments );
-    	}
-    	else
-    	{
-    		$.error('Method '+method+' does not exist on jQuery.droparea()');
-    	}
+      fileNameElem.html(fileName);
+      fileSizeElem.html(sizeStr);
     };
 
+    var setProgress = function(progress) {
+      progressBarElem
+        .find('div')
+        .animate({ width: progress + '%' }, 10)
+        .html(progress + o.i18n.percent);
+
+      if (parseInt(progress) >= 100) {
+        abortElem.hide();
+      }
+    };
+
+    var setAbort = function(jqxhr) {
+      abortElem.off('click.droparea').on('click.droparea', function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        if (jqxhr.abort) {
+          jqxhr.abort();
+        }
+
+        statusBarElem.fadeOut('fast', function() {
+          statusBarElem.remove();
+        });
+      });
+    };
+
+    var setFailure = function(msg) {
+      progressBarElem.addClass('droparea-fail');
+      progressBarElem.find('div:first').html(msg);
+    };
+
+    statusBarElem.append(
+      fileNameElem,
+      fileSizeElem,
+      progressBarElem,
+      abortElem
+    );
+
+    // Removes any pre-existing statusbar
+    drop_area.find('.statusbar').remove();
+
+    // Append the new status block ...
+    drop_area.append(statusBarElem);
+
+    return {
+      statusBar: statusBarElem,
+      setFailure: setFailure,
+      setFileNameSize: setFileNameSize.bind(this),
+      setProgress: setProgress.bind(this),
+      setAbort: setAbort.bind(this)
+    };
+  }; // _createStatusBar
+
+  /**
+   *
+   * @param {string} msg The message to display
+   * @param {boolean} [dismissable] If true, a dismiss button will be at the alert block
+   * @param {boolean} [autohide] If true, message will disapear after defaults.notificationDelay
+   * @return void
+   */
+  var _createAlertBlock = function(msg, dismissable, autohide) {
+    var target = drop_area;
+    var alertblock, filename, dismiss;
+
+    // sanitize arguments
+    dismissable = typeof dismissable != 'undefined' ? dismissable : true;
+    autohide = typeof autohide != 'undefined' ? autohide : true;
+
+    alertblock = $('<div class="statusbar alert-block"></div>');
+
+    filename = $('<div class="filename"></div>')
+      .html(msg)
+      .appendTo(alertblock);
+
+    dismiss = $('<button class="btn dismiss"></button>').html(o.i18n.dismiss);
+
+    // place statusbar covering all the object
+    alertblock.css({
+      top: 0,
+      left: 0
+    });
+
+    // Removes any pre-existing statusbar
+    target.find('.statusbar').remove();
+
+    // Appends the error notification block
+    target.append(alertblock);
+
+    // implement a dismiss button
+    // and inject it when alert block is dismissable
+    if (dismissable) {
+      dismiss.on('click', _onClickDismiss).appendTo(alertblock);
+    }
+
+    // whenever alert is auto-hideable
+    // makes it hidden after notificationDelay setting
+    if (autohide) {
+      setTimeout(function() {
+        alertblock.fadeOut('fast', function() {
+          $(this).remove();
+        });
+      }, o.notificationDelay);
+    }
+  }; // _createAlertBlock
+
+  /**
+   * Prepares and send the file to the server.
+   * @param {File} file
+   * @return void
+   */
+  var _sendFileToServer = function(file) {
+    var statusbar, jqXHR;
+
+    var fnXHR = function() {
+      var xhrObj = $.ajaxSettings.xhr();
+
+      var onUploadProgress = function(ev) {
+        var percent = 0;
+        var position = ev.loaded || ev.position;
+        var total = ev.total;
+
+        if (ev.lengthComputable) {
+          percent = Math.ceil(position / total * 100);
+        }
+
+        // update progress
+        statusbar.setProgress(percent);
+      };
+
+      if (xhrObj.upload) {
+        xhrObj.upload.addEventListener('progress', onUploadProgress, false);
+      }
+
+      return xhrObj;
+    };
+
+    var ajaxOpts = {
+      xhr: fnXHR,
+      url: o.url,
+      method: o.method,
+      type: o.method, // backward compatibility
+      contentType: false,
+      processData: false,
+      cache: false,
+      data: {}
+    };
+
+    var onXHRSuccess = function(r) {
+      if (typeof r === 'string') {
+        r = $.parseJSON(r);
+      }
+
+      statusbar.setProgress(100);
+
+      // now it's time to run the callback
+      if (o.onSuccess !== null && $.isFunction(o.onSuccess)) {
+        var fileNameToReturn =
+          typeof r.file_name !== 'undefined' ? r.file_name : null;
+
+        // call the callback and pass the return from server,
+        // the file name (file_name) whenever it exists and the
+        // offline uploaded file.
+        o.onSuccess(r, fileNameToReturn, file);
+      }
+
+      // Don't need to update the image when API returns
+      // it should be made by the consumer.
+      // _updateImageSource(file);
+
+      // remove 'drop' style from droppable area
+      drop_area.removeClass('droparea-dropped');
+    }; // onXHRSuccess
+
+    var onXHRFail = function(jqXHR, textStatus, errorThrown) {
+      statusbar.setFailure(o.i18n.error + errorThrown);
+
+      if (o.onFail && $.isFunction(o.onSuccess)) {
+        o.onFail(jqXHR.responseJSON || jqXHR);
+      }
+    }; // onXHRFail
+
+    var onXHRComplete = function(rjqXHR, textStatus) {
+      var fh = $(o.fileHolder);
+
+      fh.replaceWith(fh.val('').clone(true));
+
+      // after complete, remove the status
+      setTimeout(function() {
+        statusbar.statusBar.fadeOut('fast', function() {
+          $(this).remove();
+        });
+      }, o.notificationDelay);
+    }; // onXHRComplete
+
+    // define form data
+    ajaxOpts.data = new FormData();
+    ajaxOpts.data.append(o.fileHolder.replace('#', ''), file);
+
+    // append on ajaxOpts.data all extra data
+    if (o.extra !== null) {
+      for (var i in o.extra) {
+        if ($('#' + o.extra[i].replace('#', '')).length) {
+          ajaxOpts.data.append(
+            o.extra[i].replace('#', ''),
+            $('#' + o.extra[i].replace('#', '')).val()
+          );
+        }
+      }
+    }
+
+    // create the statusbar in order to set submition progress
+    statusbar = new _createStatusBar();
+    statusbar.setFileNameSize(file.name, file.size);
+
+    jqXHR = $.ajax(ajaxOpts)
+      .then(onXHRSuccess)
+      .catch(onXHRFail)
+      .always(onXHRComplete);
+
+    statusbar.setAbort(jqXHR);
+  }; // _sendFileToServer
+
+  /**
+   * Intercepts the file select
+   * @return void
+   */
+  var _interceptFileSelector = function() {
+    if ($(o.fileHolder).length && $(o.filePreview).length) {
+      $(o.fileHolder)
+        .off('change.droparea')
+        .on('change.droparea', (event) => {
+          var file;
+
+          if (
+            event.originalEvent &&
+            event.originalEvent.target &&
+            event.originalEvent.target.files
+          ) {
+            file = event.originalEvent.target.files[0];
+            _sendFileToServer(file);
+          }
+        });
+    }
+  }; // _interceptFileSelector
+
+  /**
+   * Called when user clicks on the droparea box
+   * @param {window.event} ev
+   * @return void
+   */
+  var _onClick = function(ev) {
+    ev.stopPropagation();
+    ev.preventDefault();
+
+    // simulate that user is selecting the file,
+    // but not dropping it instead
+    $(o.fileHolder).click();
+  }; // _onClick
+
+  /**
+   * Called when user enters the droparea box
+   * @param {window.event} ev
+   * @return void
+   */
+  var _onDragEnter = function(ev) {
+    ev.stopPropagation();
+    ev.preventDefault();
+
+    // apply a new style on droppable area
+    drop_area.addClass('droparea-dragging');
+  }; // _onDragEnter
+
+  /**
+   * Called when user leaves the droparea box
+   * @param {window.event} ev
+   * @return void
+   */
+  var _onDragLeave = function(ev) {
+    ev.stopPropagation();
+    ev.preventDefault();
+
+    // restore original style
+    drop_area.removeClass('droparea-dragging');
+  }; // _onDragLeave
+
+  /**
+   * Called when user is dragging an image
+   * @param {window.event} ev
+   * @return void
+   */
+  var _onDragOver = function(ev) {
+    ev.stopPropagation();
+    ev.preventDefault();
+
+    // apply a new style on droppable area
+    drop_area.addClass('droparea-dragging');
+  }; // _onDragOver
+
+  /**
+   * Called when user drops an image into droparea box
+   * @param {window.event} ev
+   * @return void
+   */
+  var _onDrop = function(ev) {
+    // get the original file
+    var file = ev.originalEvent.dataTransfer.files[0];
+
+    ev.preventDefault();
+
+    // apply a new style on droppable area
+    drop_area.toggleClass('droparea-dropped droparea-dragging');
+
+    // do not upload when options.upload is set to false
+    // open the file selection for 'fileHolder' instead.
+    if (!o.upload) {
+      _createAlertBlock(o, drop_area, o.i18n.unableToUpload, true, false);
+      $(o.fileHolder).click();
+      return;
+    }
+
+    // check if dropped file is allowed
+    if (o.accepted !== null && typeof o.accepted !== 'boolean') {
+      var accepting = o.accepted.toLowerCase();
+      var extension = file.name
+        .substr(file.name.lastIndexOf('.'))
+        .toLowerCase();
+
+      if (accepting.indexOf(extension) === -1) {
+        _createAlertBlock(
+          o.i18n.wrongFileType.replace(
+            '%s',
+            '<b >' + o.accepted.split('|').join('</b> or <b >') + '</b>'
+          )
+        );
+
+        return;
+      }
+    }
+
+    // check if dropped file size is allowed
+    if (file.size / 1024 > o.fileMaxSize) {
+      _createAlertBlock(
+        o.i18n.wrongFileSize.replace(
+          '%s',
+          '<b >' + o.fileMaxSize + ' ' + o.i18n.kb + '</b>'
+        )
+      );
+
+      return;
+    }
+
+    _sendFileToServer(file);
+  }; // _onDrop
+
+  /**
+   * Initializes the plugin handlers
+   * @return void
+   */
+  var _initHandlers = function() {
+    drop_area
+      .off('click.droparea')
+      .on('click.droparea', _onClick)
+      .off('dragenter.droparea')
+      .on('dragenter.droparea', _onDragEnter)
+      .off('dragleave.droparea')
+      .on('dragleave.droparea', _onDragLeave)
+      .off('dragover.droparea')
+      .on('dragover.droparea', _onDragOver)
+      .off('drop.droparea')
+      .on('drop.droparea', _onDrop);
+  }; // initHandlers
+
+  /**
+   * Constructs the plugin
+   * @param {json} options
+   * @return jQuery.droparea
+   */
+  var _construct = function(options) {
+    return this.each(function() {
+      drop_area = $(this);
+      o = $.extend({}, defaults, options);
+
+      // If given method isn't allowed fallback to POST
+      if (['POST', 'PATCH', 'PUT'].indexOf(o.method) === -1) {
+        o.method = 'POST';
+      }
+
+      // Prevents mess with progress bar style
+      drop_area
+        .parent()
+        .css('position', drop_area.parent().css('position') || 'relative');
+
+      _interceptFileSelector();
+      _initHandlers();
+    });
+  }; // _construct
+
+  // Droparea methods
+  var methods = {
+    init: _construct
+  };
+
+  // Attach the plugin to jQuery
+  $.fn.droparea = function(method) {
+    if (methods[method]) {
+      return methods[method].apply(
+        this,
+        Array.prototype.slice.call(arguments, 1)
+      );
+    } else if (typeof method === 'object' || !method) {
+      return methods.init.apply(this, arguments);
+    } else {
+      $.error('Method ' + method + ' does not exist on Droparea.js');
+    }
+  };
 })(jQuery);
