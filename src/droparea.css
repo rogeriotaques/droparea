@@ -1,122 +1,133 @@
+/**!
+ * Droparea.js
+ * Makes it easy and intuitive to upload files through drag and drop
+ * or thru the normal select from your computer method.
+ *
+ * @requires jQuery v2.1.3 or above
+ * @version 2.0.0
+ * @cat Plugins/Image
+ * @author Rogério Taques (rogerio.taques@gmail.com)
+ * @copyright 2015-2018, Rogério Taques
+ * @see https://rogeriotaques.github.io/droparea
+ */
+
 /**
- * Droparea - Makes easy and intuitive to upload upload files through drag and drop or select methods.  
- * Copyright (c) 2015, Rogério Taques. 
- * 
- * This plugin is inspired on the solution given by Ravishanker Kusuma (http://twitter.com/hayageek) 
- * at http://hayageek.com/drag-and-drop-file-upload-jquery/ where he describes how to create an easy way to 
- * drag and drop files and upload it to server. Many other enhancements were made.
- * 
  * Licensed under MIT license:
  * http://www.opensource.org/licenses/mit-license.php
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this 
- * software and associated documentation files (the "Software"), to deal in the Software 
- * without restriction, including without limitation the rights to use, copy, modify, merge, 
- * publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons 
- * to whom the Software is furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all copies or 
- * substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING 
- * BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND 
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, 
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
- * @version 1.0.0
- * @author Rogério Taques (rogerio.taques@gmail.com)
- * @see https://github.com/rogeriotaques/droparea
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this
+ * software and associated documentation files (the "Software"), to deal in the Software
+ * without restriction, including without limitation the rights to use, copy, modify, merge,
+ * publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons
+ * to whom the Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+ * BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
- 
+
 @charset "UTF-8";
 
 .droparea {
-	border: thin dashed #ccc;
-    border-radius: 5px;
-	cursor: pointer;
-	color: #aaa;
-    padding: 10px;
-    margin: 20px;
-    min-width: 250px;
-    min-height: 250px;
+  display: inline-block;
+  position: relative;
+  border: thin dashed #ccc;
+  border-radius: 5px;
+  cursor: pointer;
+  color: #aaa;
+  padding: 10px;
+  margin: 20px;
 }
 
+.droparea > span,
 .droparea > img {
-    margin-bottom: 5px;
+  display: block;
+  margin: 5px auto;
+}
+.droparea > img {
+  margin-top: 0;
 }
 
 .droparea-dragging {
-	border: thin dashed orange;
-	background-color: #FEFBED;
-	color: orange;
+  border: thin dashed orange;
+  background-color: #fefbed;
+  color: orange;
 }
 
 .statusbar {
-	position: absolute;
-	border: thin solid #000;
-    border-radius: 5px;
-	background-color: rgba(0,0,0,0.4);
-	vertical-align: middle;
-	cursor: default;
+  position: absolute;
+  border-radius: 5px;
+  background-color: rgba(0, 0, 0, 0.4);
+  vertical-align: middle;
+  cursor: default;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
 }
 
-.statusbar>.filename,
-.statusbar>.filesize {
-	color: white;
-	font-weight: 600;
+.statusbar > .filename,
+.statusbar > .filesize {
+  color: white;
+  font-weight: 600;
+  text-shadow: rgba(0, 0, 0, 0.3) 1px 1px 1px;
 }
 
-.statusbar>.filename {
-	margin-top: 10%;
+.statusbar > .filename {
+  margin-top: 10%;
 }
 
-.statusbar>.progressbar {
-	color: white;
-	border: thin solid whitesmoke;
-	margin: 10px 20px;
-	text-align: center;
-	box-shadow: #777 1px 1px 1px;
+.statusbar > .progressbar {
+  color: white;
+  border: thin solid whitesmoke;
+  margin: 10px 20px;
+  text-align: center;
+  box-shadow: #777 1px 1px 1px;
 }
 
-.statusbar>.progressbar>div {
-	background-color: #00C0EF;
-	font-weight: 600;
+.statusbar > .progressbar > div {
+  background-color: #00c0ef;
+  font-weight: 600;
 }
 
-.statusbar>.progressbar.droparea-fail>div {
-	background-color: #F56954;
+.statusbar > .progressbar.droparea-fail > div {
+  background-color: #f56954;
 }
 
 .statusbar .btn {
-	font-weight: 500;
-	-webkit-border-radius: 3px;
-	-moz-border-radius: 3px;
-	border-radius: 3px;
-	border: 1px solid transparent;
-	-webkit-box-shadow: inset 0px -2px 0px 0px rgba(0, 0, 0, 0.09);
-	-moz-box-shadow: inset 0px -2px 0px 0px rgba(0, 0, 0, 0.09);
-	box-shadow: inset 0px -1px 0px 0px rgba(0, 0, 0, 0.09);
+  font-weight: 500;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+  border: 1px solid transparent;
+  -webkit-box-shadow: inset 0px -2px 0px 0px rgba(0, 0, 0, 0.09);
+  -moz-box-shadow: inset 0px -2px 0px 0px rgba(0, 0, 0, 0.09);
+  box-shadow: inset 0px -1px 0px 0px rgba(0, 0, 0, 0.09);
 }
 
 .statusbar .btn.dismiss {
-	margin: 20px auto;
-	color: white;  
-	background-color: #3c8dbc;
- 	border-color: #367fa9;
+  margin: 20px auto;
+  color: white;
+  background-color: #3c8dbc;
+  border-color: #367fa9;
 }
 
 .statusbar .btn.dismiss:hover {
-	background-color: #367fa9;
+  background-color: #367fa9;
 }
 
 .statusbar .btn.abort {
-	margin: 20px auto;
-	color: white;
-	background-color: #f56954;
- 	border-color: #f4543c;
+  margin: 20px auto;
+  color: white;
+  background-color: #f56954;
+  border-color: #f4543c;
 }
 
 .statusbar .btn.abort:hover {
-	background-color: #f4543c;
+  background-color: #f4543c;
 }
