@@ -1,0 +1,110 @@
+<!DOCTYPE html >
+
+<html>
+
+<head>
+
+	<title>Droparea.js - Sample implementation</title>
+
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+	<link href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet">
+	<link href="../src/droparea.css" rel="stylesheet">
+
+	<style type="text/css">
+		@charset "UTF-8";
+		/*
+			html, body {
+				font: normal 10pt/16px 'Lucida Grande', 'Lucida Sans Unicode', 'Century Gothic', Verdana, Tahoma, Arial, sans-serif;
+				margin: 0;
+				padding: 0;
+			}
+
+			.footer,
+			.header {
+				border: 1px solid #333;
+				padding: 20px;
+				text-align: center;
+				color: white;
+				background: #333;
+			}
+
+			.footer a,
+			.header a {
+				color: yellowGreen;
+				text-decoration: none;
+			}
+
+			.footer a:hover,
+			.header a:hover {
+				color: white;
+			}
+
+			.my-div {
+				background-color: #F9F9F9;
+			    border: 1px solid #DDDDDD;
+			    margin: 20px auto;
+			    padding: 10px;
+			    width: 55%;
+			}
+
+			.has-feedback .form-control-feedback {
+				top: 0;
+			}
+*/
+	</style>
+
+</head>
+
+<body>
+
+	<h1>Droparea.js</h1>
+
+
+	<div class="droparea_container">
+		<div class="droparea text-center" id="drop1">
+			<span>Drag and drop files here!</span>
+			<img src="http://placehold.it/200" id="file_preview_1">
+			<br>
+		</div>
+	</div>
+
+	<input type="file" name="file" id="file_1" accept="image/*" style="display: none;">
+
+	<p>&copy;2015-2018, Rogério Taques.</p>
+
+	<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/3.0.0/jquery.min.js"></script>
+	<script type="text/javascript" src="../src/droparea.js"></script>
+	<script type="text/javascript">
+
+		$(document).ready(function () {
+			var opts = {
+				url: 'server.php',
+				fileHolder: '#file_1',
+				filePreview: '#file_preview_1',
+				notificationDelay: 120000,
+				onSuccess: function (server_return, name, uploaded_file) {
+					var _prev = $('#file_preview_1');
+					var _drop = $('#drop1');
+
+					_drop.after($('<p />').html('File sent: <b>' + name + ' (' + server_return.file_name + ')</b>'));
+
+					/* ~~ THIS CODE IS NOT NECESSARY ~~ */
+					/* ~~ IT'S ONLY HERE BECAUSE THE SERVER IS MOCKED ~~ */
+					var oFReader = new FileReader();
+					oFReader.readAsDataURL(uploaded_file);
+					oFReader.onload = function (oFREvent) {
+						_prev.attr('src', oFREvent.target.result);
+					};
+				}
+			};
+
+			// Exemples
+			$('#drop1').droparea(opts);
+		});
+
+	</script>
+
+</body>
+
+</html>
