@@ -4,7 +4,7 @@
  * or thru the normal select from your computer method.
  *
  * @requires jQuery v2.1.3 or above
- * @version 2.0.0
+ * @version 2.0.1
  * @cat Plugins/Image
  * @author Rogério Taques (rogerio.taques@gmail.com)
  * @copyright 2015-2018, Rogério Taques
@@ -34,11 +34,9 @@
 (function($) {
   'use strict';
 
-  var drop_area;
-  // var file;
-  // var form_data;
-  // var statusbar;
-  var o;
+  var dropArea = [];
+
+  var oo = [];
 
   // Default options
   var defaults = {
@@ -154,10 +152,15 @@
 
   /**
    * Creates an status bar of the droparea upload progress.
+   * @param {jqyElement} drop_area The droparea element
    * @return StatusBar
    */
-  var _createStatusBar = function() {
+  var _createStatusBar = function(drop_area) {
     _sent += 1; // increase the submission counter
+
+    var daKey = drop_area.data('droparea-key');
+
+    var o = oo[daKey];
 
     var abortElem = $('<a class="btn abort">' + o.i18n.abort + '</div>');
 
@@ -248,14 +251,17 @@
 
   /**
    *
+   * @param {jqrElement} target The droparea element
+   * @param {json} opts The instance options
    * @param {string} msg The message to display
    * @param {boolean} [dismissable] If true, a dismiss button will be at the alert block
    * @param {boolean} [autohide] If true, message will disapear after defaults.notificationDelay
    * @return void
    */
-  var _createAlertBlock = function(msg, dismissable, autohide) {
-    var target = drop_area;
+  var _createAlertBlock = function(target, msg, dismissable, autohide) {
     var alertblock, filename, dismiss;
+    var daKey = target.data('droparea-key');
+    var opts = oo[daKey];
 
     // sanitize arguments
     dismissable = typeof dismissable != 'undefined' ? dismissable : true;
@@ -267,7 +273,9 @@
       .html(msg)
       .appendTo(alertblock);
 
-    dismiss = $('<button class="btn dismiss"></button>').html(o.i18n.dismiss);
+    dismiss = $('<button class="btn dismiss"></button>').html(
+      opts.i18n.dismiss
+    );
 
     // place statusbar covering all the object
     alertblock.css({
@@ -284,7 +292,10 @@
     // implement a dismiss button
     // and inject it when alert block is dismissable
     if (dismissable) {
-      dismiss.on('click', _onClickDismiss).appendTo(alertblock);
+      dismiss
+        .off('click.droparea')
+        .on('click.droparea', _onClickDismiss)
+        .appendTo(alertblock);
     }
 
     // whenever alert is auto-hideable
@@ -294,7 +305,7 @@
         alertblock.fadeOut('fast', function() {
           $(this).remove();
         });
-      }, o.notificationDelay);
+      }, opts.notificationDelay);
     }
   }; // _createAlertBlock
 
@@ -303,7 +314,7 @@
    * @param {File} file
    * @return void
    */
-  var _sendFileToServer = function(file) {
+  var _sendFileToServer = function(drop_area, o, file) {
     var statusbar, jqXHR;
 
     var fnXHR = function() {
@@ -404,7 +415,7 @@
     }
 
     // create the statusbar in order to set submition progress
-    statusbar = new _createStatusBar();
+    statusbar = new _createStatusBar(drop_area);
     statusbar.setFileNameSize(file.name, file.size);
 
     jqXHR = $.ajax(ajaxOpts)
@@ -417,9 +428,11 @@
 
   /**
    * Intercepts the file select
+   * @param {jqrElement} drop_area The droparea element
+   * @param {json} o The options
    * @return void
    */
-  var _interceptFileSelector = function() {
+  var _interceptFileSelector = function(drop_area, o) {
     if ($(o.fileHolder).length && $(o.filePreview).length) {
       $(o.fileHolder)
         .off('change.droparea')
@@ -432,7 +445,7 @@
             event.originalEvent.target.files
           ) {
             file = event.originalEvent.target.files[0];
-            _sendFileToServer(file);
+            _sendFileToServer(drop_area, o, file);
           }
         });
     }
@@ -446,6 +459,10 @@
   var _onClick = function(ev) {
     ev.stopPropagation();
     ev.preventDefault();
+
+    var drop_area = $(ev.currentTarget);
+    var daKey = drop_area.data('droparea-key');
+    var o = oo[daKey];
 
     // simulate that user is selecting the file,
     // but not dropping it instead
@@ -461,6 +478,8 @@
     ev.stopPropagation();
     ev.preventDefault();
 
+    var drop_area = $(ev.currentTarget);
+
     // apply a new style on droppable area
     drop_area.addClass('droparea-dragging');
   }; // _onDragEnter
@@ -473,6 +492,8 @@
   var _onDragLeave = function(ev) {
     ev.stopPropagation();
     ev.preventDefault();
+
+    var drop_area = $(ev.currentTarget);
 
     // restore original style
     drop_area.removeClass('droparea-dragging');
@@ -487,6 +508,8 @@
     ev.stopPropagation();
     ev.preventDefault();
 
+    var drop_area = $(ev.currentTarget);
+
     // apply a new style on droppable area
     drop_area.addClass('droparea-dragging');
   }; // _onDragOver
@@ -497,10 +520,14 @@
    * @return void
    */
   var _onDrop = function(ev) {
+    ev.preventDefault();
+
     // get the original file
     var file = ev.originalEvent.dataTransfer.files[0];
 
-    ev.preventDefault();
+    var drop_area = $(ev.currentTarget);
+    var daKey = drop_area.data('droparea-key');
+    var o = oo[daKey];
 
     // apply a new style on droppable area
     drop_area.toggleClass('droparea-dropped droparea-dragging');
@@ -508,7 +535,7 @@
     // do not upload when options.upload is set to false
     // open the file selection for 'fileHolder' instead.
     if (!o.upload) {
-      _createAlertBlock(o, drop_area, o.i18n.unableToUpload, true, false);
+      _createAlertBlock(drop_area, o.i18n.unableToUpload, true, false);
       $(o.fileHolder).click();
       return;
     }
@@ -522,6 +549,7 @@
 
       if (accepting.indexOf(extension) === -1) {
         _createAlertBlock(
+          drop_area,
           o.i18n.wrongFileType.replace(
             '%s',
             '<b >' + o.accepted.split('|').join('</b> or <b >') + '</b>'
@@ -535,6 +563,7 @@
     // check if dropped file size is allowed
     if (file.size / 1024 > o.fileMaxSize) {
       _createAlertBlock(
+        drop_area,
         o.i18n.wrongFileSize.replace(
           '%s',
           '<b >' + o.fileMaxSize + ' ' + o.i18n.kb + '</b>'
@@ -544,14 +573,15 @@
       return;
     }
 
-    _sendFileToServer(file);
+    _sendFileToServer(drop_area, o, file);
   }; // _onDrop
 
   /**
    * Initializes the plugin handlers
+   * @param {jqrObject} drop_area The droparea element
    * @return void
    */
-  var _initHandlers = function() {
+  var _initHandlers = function(drop_area) {
     drop_area
       .off('click.droparea')
       .on('click.droparea', _onClick)
@@ -572,8 +602,11 @@
    */
   var _construct = function(options) {
     return this.each(function() {
-      drop_area = $(this);
-      o = $.extend({}, defaults, options);
+      var daKey = dropArea.length;
+      var drop_area = $(this);
+      var o = $.extend({}, defaults, options);
+
+      drop_area.attr('data-droparea-key', daKey);
 
       // If given method isn't allowed fallback to POST
       if (['POST', 'PATCH', 'PUT'].indexOf(o.method) === -1) {
@@ -585,8 +618,11 @@
         .parent()
         .css('position', drop_area.parent().css('position') || 'relative');
 
-      _interceptFileSelector();
-      _initHandlers();
+      dropArea[daKey] = drop_area;
+      oo[daKey] = o;
+
+      _interceptFileSelector(drop_area, o);
+      _initHandlers(drop_area);
     });
   }; // _construct
 

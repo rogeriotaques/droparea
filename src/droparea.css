@@ -4,7 +4,7 @@
  * or thru the normal select from your computer method.
  *
  * @requires jQuery v2.1.3 or above
- * @version 2.0.0
+ * @version 2.0.1
  * @cat Plugins/Image
  * @author Rogério Taques (rogerio.taques@gmail.com)
  * @copyright 2015-2018, Rogério Taques
@@ -88,6 +88,8 @@
   margin: 10px 20px;
   text-align: center;
   box-shadow: #777 1px 1px 1px;
+  min-height: 24px;
+  background: #d5d5d5;
 }
 
 .statusbar > .progressbar > div {
