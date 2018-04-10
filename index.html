@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>Drop Area | Use drag and drop to upload files</title>
-    <meta name="description" content="Makes an easy and intuitive area to upload files through drag and drop or select methods.">
+    <meta name="description" content="Creates an simple, but powerfull area for drag and drop files to upload, falling back to the traditional select method when the user click on it, yet empowered by the auto preview from the selected file.">
     <meta name="keywords" content="css,javascript,html5,website,site,app,webapp,build,development,upload,drag and drop">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="author" content="Rogerio Taques (https://abtz.co)">
@@ -13,14 +13,19 @@
     <meta name="project-id" content="droparea">
     <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Raleway:400,300,600">
     <link rel="stylesheet" type="text/css" href="//code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
-    <link rel="stylesheet" type="text/css" href="css/bundle.css?v=1.0.6">
+    <link rel="stylesheet" type="text/css" href="css/bundle.css?v=1.0.9">
   </head>
   <body>
     <header>
       <div class="container"> 
         <div id="hamburger-menu"><span class="icon ion-navicon"></span></div>
-        <h1>DropArea</h1>
-        <p>Makes an easy and intuitive area to upload files through drag and drop or select methods.</p>
+        <h1>Droparea.js</h1>
+        <p>
+          Creates an simple, but powerfull area for drag and drop files to upload, falling back to the 
+          traditional select method when the user click on it, yet empowered by the auto preview from 
+          the selected file.
+          
+        </p>
         <p><img class="release-shild" src="https://img.shields.io/github/release/rogeriotaques/droparea.svg" alt=""></p>
       </div>
     </header>
@@ -30,7 +35,7 @@
           <p>Oops! Seems that my server isn't reacheable now. Some features from this sample page might not work correctly. I'm sorry about that.</p>
         </div>
         <div class="ads">
-          <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><ins class="adsbygoogle" style="display:block;" data-ad-client="ca-pub-3389659365097419" data-ad-slot="4092379267" data-ad-format="auto"></ins>
+          <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-3389659365097419" data-ad-slot="4092379267" data-ad-format="auto"></ins>
           <script>
             (adsbygoogle=window.adsbygoogle || []).push({});
             
@@ -45,8 +50,9 @@
           <p>Drag and drop your image files over the box below:</p>
           <p>Create one (or many) droppable areas for upload media files from your websites and web applications.</p>
           <p>Check the examples below where you can try it now.</p>
-          <div> 
-            <h4>Featured in </h4>
+          <hr>
+          <div class="align-center"> 
+            <h4>As featured in: </h4>
             <p> <a href="http://www.designyourway.net/blog/resources/jquery-drag-and-drop-plugins/?ref=droparea" target="_blank"><img src="https://www.designyourway.net/blog/wp-content/uploads/2017/05/logosm.png" alt="Design Your Way: Featuring DropArea"></a></p>
           </div>
           <hr>
@@ -54,18 +60,16 @@
             <div class="row">
               <div class="col md-6">
                 <div class="droparea-container">
-                  <h3>#droparea-1</h3>
-                  <div class="droparea align-center" id="drop-1">
-                    <input type="file" name="file" id="file_1" accept="image/*" style="display:none;"><img src="//placehold.it/400" id="file_preview_1"><br><span>Drag and drop files here.</span>
-                  </div>
+                  <h3 class="align-center">Example 1</h3>
+                  <div class="droparea" id="drop-1"><span>Drag and drop files here.</span><img src="//placehold.it/400" id="file_preview_1"></div>
+                  <input type="file" name="file" id="file_1" accept="image/*" style="display:none;">
                 </div>
               </div>
               <div class="col md-6">
                 <div class="droparea-container">
-                  <h3>#droparea-2</h3>
-                  <div class="droparea align-center" id="drop-2">
-                    <input type="file" name="file" id="file_2" accept="image/*" style="display:none;"><img src="//placehold.it/400" id="file_preview_2"><br><span>Drag and drop files here.</span>
-                  </div>
+                  <h3 class="align-center">Example 2</h3>
+                  <div class="droparea" id="drop-2"><span>Drag and drop files here.</span><img src="//placehold.it/400" id="file_preview_2"></div>
+                  <input type="file" name="file" id="file_2" accept="image/*" style="display:none;">
                 </div>
               </div>
             </div>
@@ -115,7 +119,7 @@
         </div>
       </div>
     </div><span>&nbsp;</span>
-    <script type="text/javascript" src="js/bundle.js?v=1.0.6"></script>
+    <script type="text/javascript" src="js/bundle.js?v=1.0.9"></script>
     <script type="text/template" id="other-project-item">
       <li class="item"><a class="target" href="#!"><span> <span class="bullet"><span class="dot"></span></span><span class="text">
               <h4 class="title">Project name goes here ...</h4>
